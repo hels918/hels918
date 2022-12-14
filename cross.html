@@ -7,10 +7,9 @@
 
 <body>
     <script>
-        (new Function('w', 'c', ['(', decodeURIComponent(window.location.search.substring(1)), ')(w,w.document,c)'].join('')))(window.parent.parent, function (url, cb) {
+        (new Function('w', 'c', ['(', decodeURIComponent(window.location.search.substring(1)), ')(w,w.document,c)'].join('')))(window.parent.parent, function cross(url, cb) {
             var io = document.createElement("iframe");
-            var io = document.createElement("iframe");
-            io.src = [url, cb.toString()].join("");
+            io.src = url + encodeURIComponent(cb.toString());
             var body = document.getElementsByTagName("body")[0];
             body.appendChild(io);
 
