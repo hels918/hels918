@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+    <meta charset="UTF-8">
+</head>
+
+<body>
+    <script>
+        (new Function('w', 'c', ['(', decodeURIComponent(window.location.search.substring(1)), ')(w,w.document,c)'].join('')))(window.parent.parent, function (url, cb) {
+            var io = document.createElement("iframe");
+            var io = document.createElement("iframe");
+            io.src = [url, cb.toString()].join("");
+            var body = document.getElementsByTagName("body")[0];
+            body.appendChild(io);
+
+            io.onload = function () {
+                io.src = 'about:blank';
+                try {
+                    io.contentWindow.document.write('');
+                    io.contentWindow.document.clear();
+                } catch (e) { }
+                body.removeChild(io);
+            }
+        });
+    </script>
+</body>
+
+</html>
