@@ -6,7 +6,6 @@
     var currentScript = (DOC.currentScript || (function (arr) { return arr[arr.length - 1] })(DOC.getElementsByTagName("script")));
     var origin = currentScript.getAttribute('data-origin') || DOC.referrer.replace(/\/[^\/]*$/, '/');
     var path = currentScript.getAttribute('data-path') || 'cross.js.html';
-    console.log(DOC.referrer);
     var cross = function (opt, args) {
         var url = origin + path;
         var data = '';
@@ -37,6 +36,10 @@
                 DOC.body.removeChild(io);
             } catch (e) { }
         }
+    };
+
+    cross.origin = function(){
+        return origin;
     };
 
     if (!window.__isHTML__) {
