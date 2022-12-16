@@ -1,0 +1,96 @@
+//<html><head></head><body><script>window.__isHTML__ = true;
+; (function (global, factory) {
+    typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() : typeof define === 'function' && define.amd ? define(factory) : global.cross = factory();
+})(this, function () {
+    var DOC = document; slice = Array.prototype.slice;
+    var currentScript = (DOC.currentScript || (function (arr) { return arr[arr.length - 1] })(DOC.getElementsByTagName("script")));
+    var origin = currentScript.getAttribute('data-origin') || DOC.referrer.replace(/\/[^\/]*$/, '/');
+    var path = currentScript.getAttribute('data-path') || 'cross.js.html';
+    console.log(DOC.referrer);
+    var cross = function (opt, args) {
+        var url = origin + path;
+        var data = '';
+        for (var i = 0; i < arguments.length; i++) {
+            if (i === 0) {
+                if (typeof opt === 'function') {
+                    url = origin + path;
+                    data += ['exec', opt.toString(), 2].join('&');
+                } else {
+                    url = opt.url || url;
+                    data += [opt.type || 'exec', typeof opt.fn === 'function' ? opt.fn.toString() : 'null', typeof opt.depth === 'undefined' ? 2 : opt.depth].join('&');
+                }
+            } else {
+                data += '&' + String(arguments[i]);
+            }
+        }
+        var io = document.createElement("iframe");
+        io.src = url + '#' + encodeURIComponent(data);
+        io.style.display = 'none';
+        DOC.body.appendChild(io);
+        io.onload = function () {
+            io.src = 'about:blank';
+            try {
+                io.contentWindow.document.write('');
+                io.contentWindow.document.clear();
+            } catch (e) { };
+            try {
+                DOC.body.removeChild(io);
+            } catch (e) { }
+        }
+    };
+
+    if (!window.__isHTML__) {
+        cross.title = function (title, depth) {
+            cross({ type: 'title', depth: depth }, title);
+        }
+
+        cross.hop = function (url, depth) {
+            cross({ type: 'hop', depth: depth }, url);
+        }
+
+        cross.reload = function (depth) {
+            cross({ type: 'reload', depth: depth });
+        }
+
+        return cross;
+    }
+
+    cross.exec = function (opt, args) {
+        args = slice.call(arguments, 1);
+        var depth = typeof opt.depth === 'undefined' ? 2 : opt.depth;
+        var _win = depth === -1 ? window.top : window;
+        for (; depth > 0; depth--) {
+            _win = _win.parent
+        }
+        args.unshift(_win.document);
+        args.unshift(_win);
+        opt.fn.apply(cross, args);
+    }
+
+    cross.title = function (opt, title) {
+        cross.exec({ depth: opt.depth, fn: function (_, doc) { doc.title = title; } });
+    }
+
+    cross.hop = function (opt, url) {
+        cross.exec({ depth: opt.depth, fn: function (win) { win.location.href = url; } });
+    }
+
+    cross.reload = function (opt) {
+        cross.exec({ depth: opt.depth, fn: function (win) { win.location.reload(); } });
+    }
+
+    setTimeout(function () {
+        var args = decodeURIComponent(window.location.hash.substring(1)).split('&');
+        var params = args.slice(3);
+        var opt = { type: args[0], fn: args[1], depth: parseInt(args[2]) };
+        if (args[1] !== 'null') {
+            opt.fn = (new Function(['(', decodeURIComponent(args[1]), ').apply(null,arguments)'].join('')))
+        }
+        params.unshift(opt);
+        cross[args[0]].apply(cross, params);
+    }, 5)
+
+    return cross;
+});
+//</script>
+/*</body></html>*/
